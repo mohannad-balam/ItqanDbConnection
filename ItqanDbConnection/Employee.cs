@@ -40,8 +40,12 @@ namespace ItqanDbConnection
                     MessageBox.Show("information missing");
                     return;
                 }
-                string query = "INSERT INTO tbEmployee VALUES ('"+fnameTb.Text+"','"+lnameTb.Text+"','"+salaryTb.Text+"','"+phoneTb.Text+"')";
+                string query = "INSERT INTO tbEmployee VALUES (@fname,@lname,@salary,@phone)";
                 cmd = new SqlCommand(query,Con);
+                cmd.Parameters.AddWithValue("@fname", fnameTb.Text);
+                cmd.Parameters.AddWithValue("@lname", lnameTb.Text);
+                cmd.Parameters.AddWithValue("@salary", double.Parse(salaryTb.Text));
+                cmd.Parameters.AddWithValue("@phone", phoneTb.Text);
                 cmd.ExecuteNonQuery();
                 Con.Close();
                 ClearTb();
@@ -102,8 +106,9 @@ namespace ItqanDbConnection
                     {
                         Con.Open();
                         empId = int.Parse(employeeDgv.Rows[e.RowIndex].Cells[0].Value.ToString());
-                        string query = "DELETE FROM tbEmployee WHERE id ="+empId+"";
+                        string query = "DELETE FROM tbEmployee WHERE id = @id";
                         cmd = new SqlCommand(query,Con);
+                        cmd.Parameters.AddWithValue("@id", empId);
                         cmd.ExecuteNonQuery();
                         Con.Close();
                         loadEmployees();
@@ -120,7 +125,25 @@ namespace ItqanDbConnection
 
         private void updateBtn_Click(object sender, EventArgs e)
         {
+            try
+            {
+                Con.Open();
 
+                string query = "UPDATE tbEmployee SET first_name=@fname, last_name=@lname, salary=@salary, phone=@phone WHERE id=@id";
+                cmd = new SqlCommand(query,Con);
+                cmd.Parameters.AddWithValue("@fname", fnameTb.Text);
+                cmd.Parameters.AddWithValue("@lname", lnameTb.Text);
+                cmd.Parameters.AddWithValue("@salary", double.Parse(salaryTb.Text));
+                cmd.Parameters.AddWithValue("@phone", phoneTb.Text);
+                cmd.Parameters.AddWithValue("@id", empId);
+                cmd.ExecuteNonQuery();
+                Con.Close();
+                loadEmployees();
+            }catch(Exception ex)
+            {
+                Con.Close();
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
